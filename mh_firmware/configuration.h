@@ -1,0 +1,12 @@
+#define pi                          3.1415926535
+#define UPDATE_PERIOD             500
+#define ENABLE                    LOW
+#define DISABLE                  HIGH
+#define BAUDRATE               115200
+#define X_DIRECTION               LOW
+#define Y_DIRECTION              HIGH
+#define DEFAULT_STROBE_PERIOD  120000
+#define DEFAULT_STROBE_LENGTH    5000
+#define DEFAULT_LIGHT_INT         255
+#define LIGHT_ON                  LOW
+#define LIGHT_OFF                HIGH
