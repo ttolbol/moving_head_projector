@@ -12,7 +12,7 @@ void init_light() {
   strobe_pulse_length = DEFAULT_STROBE_LENGTH;
   light_int = DEFAULT_LIGHT_INT;
 
-  enable_light = true;
+  enable_light = false;
   enable_strobe = false;
   light_state = LIGHT_ON;
   pinMode(LED_PIN, OUTPUT);

@@ -12,7 +12,13 @@ void loop() {
   // read new commands
   while (Serial.available() > 0) {
     int cmd = Serial.read();
-    Serial.println(cmd);
+    unsigned long x_steps = get_x_steps();
+    unsigned long y_steps = get_y_steps();
+    float x_deg = get_x_degrees(x_steps);
+    float y_deg = get_y_degrees(y_steps);
+    Serial.print(x_deg);
+    Serial.print(", ");
+    Serial.println(y_deg);
     command(cmd);
   }
   update_motors();
