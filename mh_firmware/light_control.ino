@@ -71,6 +71,11 @@ void toggle_strobe() {
 }
 
 void set_intensity(int intensity) {
+  if(intensity > 255){
+    intensity = 255;
+  } else if(intensity < 0){
+    intensity = 0;
+  }
   light_int = intensity;
 }
 

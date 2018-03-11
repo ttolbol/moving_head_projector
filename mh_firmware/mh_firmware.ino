@@ -12,7 +12,9 @@ void loop() {
   // read new commands
   while (Serial.available() > 0) {
     String instring = Serial.readStringUntil('\n');
-    interpret_command(instring);
+    if (interpret_command(instring)) {
+      Serial.println("ok");
+    }
   }
   update_motors();
   update_light();

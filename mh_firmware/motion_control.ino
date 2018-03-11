@@ -46,18 +46,6 @@ void init_motors() {
   digitalWrite(Y_ENABLE_PIN, ENABLE);
 }
 
-void toggle_motors() {
-  if (motors_enabled) {
-    digitalWrite(X_ENABLE_PIN, DISABLE);
-    digitalWrite(Y_ENABLE_PIN, DISABLE);
-    motors_enabled = false;
-  } else {
-    digitalWrite(X_ENABLE_PIN, ENABLE);
-    digitalWrite(Y_ENABLE_PIN, ENABLE);
-    motors_enabled = true;
-  }
-}
-
 void update_motors() {
   // switch direction
   if (x_dir_prev != x_dir) {

@@ -15,13 +15,13 @@ boolean interpret_command(String cmd) {
   if (command.equals("x_vel")) {
     if (string_is_float(param)) {
       set_x_vel(param.toFloat());
+      return true;
     }
-    return true;
   } else if (command.equals("y_vel")) {
     if (string_is_float(param)) {
       set_y_vel(param.toFloat());
+      return true;
     }
-    return true;
   } else if (command.equals("led_on")) {
     enable_light();
     return true;
@@ -30,22 +30,34 @@ boolean interpret_command(String cmd) {
     return true;
   } else  if (command.equals("x_on")) {
     enable_x_motor();
-    return true
+    return true;
   } else if (command.equals("x_off")) {
     disable_x_motor();
-    return true
+    return true;
   }  else  if (command.equals("y_on")) {
     enable_y_motor();
-    return true
+    return true;
   } else if (command.equals("y_off")) {
     disable_y_motor();
-    return true
+    return true;
   }  else  if (command.equals("motors_on")) {
     enable_motors();
-    return true
+    return true;
   } else if (command.equals("motors_off")) {
     disable_motors();
-    return true
+    return true;
+  } else if(command.equals("led_int")){
+    if(string_is_int(param)){
+      set_intensity(param.toInt());
+      return true;
+    }
+  } else if(command.equals("get_pos")){
+    float x_deg = get_x_degrees(get_x_steps());
+    float y_deg = get_y_degrees(get_y_steps());
+    Serial.print(x_deg);
+    Serial.print(", ");
+    Serial.println(y_deg);
+    return true;
   }
 
   return false;
