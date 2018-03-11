@@ -1,5 +1,5 @@
 #define pi                          3.1415926535
-#define UPDATE_PERIOD             500
+#define UPDATE_PERIOD             300
 #define ENABLE                    LOW
 #define DISABLE                  HIGH
 #define BAUDRATE               115200
