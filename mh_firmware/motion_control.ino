@@ -10,8 +10,13 @@ boolean y_motor_enabled;
 
 unsigned long x_step_position;
 unsigned long y_step_position;
-float x_deg_position;
-float y_deg_position;
+unsigned long x_periods_passed;
+unsigned long y_periods_passed;
+unsigned long x_wait_periods;
+unsigned long y_wait_periods;
+
+float x_vel;
+float y_vel;
 
 void init_motors() {
   x_dir = 0;
@@ -29,8 +34,13 @@ void init_motors() {
 
   x_step_position = 0;
   y_step_position = 0;
-  x_deg_position = X_MIN;
-  y_deg_position = Y_MIN;
+  x_periods_passed = 0;
+  y_periods_passed = 0;
+  x_wait_periods = 0;
+  y_wait_periods = 0;
+
+  x_vel = 0.0f;
+  y_vel = 0.0f;
 
   pinMode(X_STEP_PIN, OUTPUT);
   pinMode(X_DIR_PIN, OUTPUT);
@@ -47,6 +57,42 @@ void init_motors() {
 }
 
 void update_motors() {
+  long delta = micros() - last_check;
+  if (delta > UPDATE_PERIOD) {
+    update_direction();
+    update_x();
+    update_y();
+    last_check = micros();
+  }
+}
+
+unsigned long speed_to_periods_x(float s) {
+  //converts deg/s to number of periods in between pulses
+  //one period is equal to UPDATE_PERIOD
+  if (s > MIN_SPEED) {
+    float steps_per_sec = s * X_STEPS_PER_DEG;
+    float period = 1000000.f / steps_per_sec;
+    float n = period / UPDATE_PERIOD;
+    return round(n);
+  } else {
+    return 0;
+  }
+}
+
+unsigned long speed_to_periods_y(float s) {
+  //converts deg/s to number of periods in between pulses
+  //one period is equal to UPDATE_PERIOD
+  if (s > MIN_SPEED) {
+    float steps_per_sec = s * Y_STEPS_PER_DEG;
+    float period = 1000000.f / steps_per_sec;
+    float n = period / UPDATE_PERIOD;
+    return round(n);
+  } else {
+    return 0;
+  }
+}
+
+void update_direction() {
   // switch direction
   if (x_dir_prev != x_dir) {
     if (x_dir == 1) {
@@ -63,48 +109,57 @@ void update_motors() {
       digitalWrite(Y_DIR_PIN, !Y_DIRECTION);
     }
   }
-
-  long delta = micros() - last_check;
-  if (delta > UPDATE_PERIOD) {
-    if (abs(x_dir) > 0) {
-      x_state = !x_state;
-      digitalWrite(X_STEP_PIN, x_state);
-      if (x_state == HIGH) {
-        if (x_dir > 0) {
-          x_step_position++;
-        } else {
-          if (x_step_position > 0) {
-            x_step_position--;
-          }
-        }
-      }
-    }
-
-    if (abs(y_dir) > 0) {
-      y_state = !y_state;
-      digitalWrite(Y_STEP_PIN, y_state);
-      if (y_state == HIGH) {
-        if (y_dir > 0) {
-          y_step_position++;
-        } else {
-          if (y_step_position > 0) {
-            y_step_position--;
-          }
-        }
-      }
-    }
-
-    last_check = micros();
-  }
-
   x_dir_prev = x_dir;
   y_dir_prev = y_dir;
 }
 
+void update_x() {
+  if (x_dir != 0) {
+    if (x_state == HIGH) {
+      x_state = LOW;
+      digitalWrite(X_STEP_PIN, x_state);
+    } else {
+      x_periods_passed++;
+      if (x_periods_passed > x_wait_periods) {
+        x_periods_passed = 0;
+        x_state = HIGH;
+        digitalWrite(X_STEP_PIN, x_state);
+        if (x_dir == 1) {
+          x_step_position++;
+        } else {
+          x_step_position--;
+        }
+      }
+    }
+  }
+}
+
+void update_y() {
+  if (y_dir != 0) {
+    if (y_state == HIGH) {
+      y_state = LOW;
+      digitalWrite(Y_STEP_PIN, y_state);
+    } else {
+      y_periods_passed++;
+      if (y_periods_passed > y_wait_periods) {
+        y_periods_passed = 0;
+        y_state = HIGH;
+        digitalWrite(Y_STEP_PIN, y_state);
+        if (y_dir == 1) {
+          y_step_position++;
+        } else {
+          y_step_position--;
+        }
+      }
+    }
+  }
+}
+
 void set_x_vel(float vel) {
-  if (vel > 0.1f) {
+  x_wait_periods = speed_to_periods_x(abs(vel));
+  if (vel > MIN_SPEED) {
     x_dir = 1;
-  } else if (vel < -0.1f) {
+  } else if (vel < -MIN_SPEED) {
     x_dir = -1;
   } else {
     x_dir = 0;
@@ -112,9 +167,10 @@ void set_x_vel(float vel) {
 }
 
 void set_y_vel(float vel) {
-  if (vel > 0.1f) {
+  y_wait_periods = speed_to_periods_y(abs(vel));
+  if (vel > MIN_SPEED) {
     y_dir = 1;
-  } else if (vel < -0.1f) {
+  } else if (vel < -MIN_SPEED) {
     y_dir = -1;
   } else {
     y_dir = 0;
