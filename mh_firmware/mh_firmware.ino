@@ -10,7 +10,7 @@ void setup() {
 
 void loop() {
   // read new commands
-  while(Serial.available() > 0){
+  while (Serial.available() > 0) {
     String instring = Serial.readStringUntil('\n');
     interpret_command(instring);
   }

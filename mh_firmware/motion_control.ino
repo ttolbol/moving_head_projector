@@ -5,7 +5,8 @@ int y_dir_prev;
 int x_state;
 int y_state;
 unsigned long last_check;
-boolean motors_enabled;
+boolean x_motor_enabled;
+boolean y_motor_enabled;
 
 unsigned long x_step_position;
 unsigned long y_step_position;
@@ -23,7 +24,8 @@ void init_motors() {
 
   last_check = 0;
 
-  motors_enabled = true;
+  x_motor_enabled = true;
+  y_motor_enabled = true;
 
   x_step_position = 0;
   y_step_position = 0;
@@ -37,18 +39,6 @@ void init_motors() {
   pinMode(Y_STEP_PIN, OUTPUT);
   pinMode(Y_DIR_PIN, OUTPUT);
   pinMode(Y_ENABLE_PIN, OUTPUT);
-
-  pinMode(Z_STEP_PIN, OUTPUT);
-  pinMode(Z_DIR_PIN, OUTPUT);
-  pinMode(Z_ENABLE_PIN, OUTPUT);
-
-  pinMode(E0_STEP_PIN, OUTPUT);
-  pinMode(E0_DIR_PIN, OUTPUT);
-  pinMode(E0_ENABLE_PIN, OUTPUT);
-
-  pinMode(E1_STEP_PIN, OUTPUT);
-  pinMode(E1_DIR_PIN, OUTPUT);
-  pinMode(E1_ENABLE_PIN, OUTPUT);
 
   digitalWrite(X_DIR_PIN, X_DIRECTION);
   digitalWrite(Y_DIR_PIN, Y_DIRECTION);
@@ -141,6 +131,36 @@ void set_y_vel(float vel) {
   } else {
     y_dir = 0;
   }
+}
+
+void enable_x_motor() {
+  x_motor_enabled = true;
+  digitalWrite(X_ENABLE_PIN, ENABLE);
+}
+
+void enable_y_motor() {
+  y_motor_enabled = true;
+  digitalWrite(Y_ENABLE_PIN, ENABLE);
+}
+
+void disable_x_motor() {
+  x_motor_enabled = false;
+  digitalWrite(X_ENABLE_PIN, DISABLE);
+}
+
+void disable_y_motor() {
+  y_motor_enabled = false;
+  digitalWrite(Y_ENABLE_PIN, DISABLE);
+}
+
+void enable_motors() {
+  enable_x_motor();
+  enable_y_motor();
+}
+
+void disable_motors() {
+  disable_x_motor();
+  disable_y_motor();
 }
 
 unsigned long get_x_steps() {

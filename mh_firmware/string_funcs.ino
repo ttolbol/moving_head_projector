@@ -1,10 +1,10 @@
 boolean string_is_int(String str) {
   int n = str.length();
 
-  if (n == 0){
+  if (n == 0) {
     return false;
   }
-  
+
   for (int i = 0; i < n; i++) {
     if (!(isDigit(str[i]) || str[i] == '-')) {
       return false;
@@ -17,10 +17,10 @@ boolean string_is_int(String str) {
 boolean string_is_float(String str) {
   int n = str.length();
 
-  if (n == 0){
+  if (n == 0) {
     return false;
   }
-  
+
   for (int i = 0; i < n; i++) {
     if (!(isDigit(str[i]) || str[i] == '-' || str[i] == '.')) {
       return false;
