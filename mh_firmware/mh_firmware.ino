@@ -54,6 +54,12 @@ void command(int cmd) {
     case 72:
       toggle_motors();
       break;
+    case 32:
+      enable_light();
+      break;
+    case 33:
+      disable_light();
+      break;
   }
 }
 

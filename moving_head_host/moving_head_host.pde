@@ -11,10 +11,15 @@ int y_dir = 0;
 int x_dir_prev = x_dir;
 int y_dir_prev = y_dir;
 
+boolean light_on = false;
+boolean light_on_prev = false;
+
 int up = 0;
 int down = 0;
 int left = 0;
 int right = 0;
+
+int nl = 10; //new line is 10 in ascii
 
 void setup() {
   size(600, 600);
@@ -29,11 +34,27 @@ void setup() {
 }
 
 void draw() {
-  update();
+  String in_string = null;
+  while (port.available() > 0) {
+    in_string = port.readStringUntil(nl);
+    if (in_string != null) {
+      println(in_string);
+    }
+  }
+  
+  //update();
   render();
 }
 
 void update() {
+  if (light_on != light_on_prev) {
+    if (light_on) {
+      port.write(32);
+    } else {
+      port.write(33);
+    }
+  }
+
   x_dir = right-left;
   y_dir = up-down;
 
@@ -50,7 +71,7 @@ void update() {
       break;
     }
   }
-  
+
   if (y_dir != y_dir_prev) {
     switch(y_dir) {
     case 1:
@@ -67,6 +88,7 @@ void update() {
 
   x_dir_prev = x_dir;
   y_dir_prev = y_dir;
+  light_on_prev = light_on;
 }
 
 void render() {
@@ -99,10 +121,18 @@ void render() {
     fill(32);
     rect(396, 300, 64, 64);
   }
+  if (light_on) {
+    fill(255);
+    ellipse(300, 300, 100, 100);
+  } else {
+    fill(32);
+    ellipse(300, 300, 100, 100);
+  }
 }
 
 void keyPressed() {
   if (key == CODED) {
+    println("coded");
     switch (keyCode) {
     case UP:
       up = 1;
@@ -117,7 +147,11 @@ void keyPressed() {
       right = 1;
       break;
     }
+  } else if (key == ' ') {
+    light_on = true;
   }
+  
+  update();
 }
 
 void keyReleased() {
@@ -136,5 +170,9 @@ void keyReleased() {
       right = 0;
       break;
     }
+  }  else if (key == ' ') {
+    light_on = false;
   }
+  
+  update();
 }
