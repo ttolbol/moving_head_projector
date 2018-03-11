@@ -1,9 +1,24 @@
+import net.java.games.input.*;
+import org.gamecontrolplus.*;
+import org.gamecontrolplus.gui.*;
+
 import processing.serial.*;
+
+boolean connected = false;
 
 int BAUD_RATE = 115200;
 int COM_PORT = 0;
 
 Serial port;
+
+boolean enable_joystick = false;
+ControlIO control;
+ControlDevice device;
+ControlSlider x_axis;
+ControlSlider x_axis_alt;
+ControlSlider y_axis;
+ControlSlider throttle;
+ControlButton trigger;
 
 int x_dir = 0;
 int y_dir = 0;
@@ -19,14 +34,32 @@ int down = 0;
 int left = 0;
 int right = 0;
 
+float x_val = 0.0f;
+float y_val = 0.0f;
+
 int nl = 10; //new line is 10 in ascii
 
 void setup() {
   size(600, 600);
 
+  control = ControlIO.getInstance(this);
+  if (control.getNumberOfDevices() > 0) {
+    enable_joystick = true;
+    device = control.getDevice(0);
+    x_axis = device.getSlider(0);
+    x_axis_alt = device.getSlider(5);
+    y_axis = device.getSlider(1);
+    throttle = device.getSlider(2);
+    trigger = device.getButton(0);
+  }
+
   printArray(Serial.list());
-  port = new Serial(this, Serial.list()[COM_PORT], BAUD_RATE);
-  port.clear();
+  if (Serial.list()[COM_PORT].equals("/dev/ttyACM0")) {
+    port = new Serial(this, Serial.list()[COM_PORT], BAUD_RATE);
+    port.clear();
+    connected = true;
+    println("CONNECTED!");
+  }
 
   rectMode(CENTER);
   background(0);
@@ -34,6 +67,17 @@ void setup() {
 }
 
 void draw() {
+  if (connected) {
+    read_serial();
+  }
+
+  if (enable_joystick) {
+    update_joystick();
+  }
+  render();
+}
+
+void read_serial() {
   String in_string = null;
   while (port.available() > 0) {
     in_string = port.readStringUntil(nl);
@@ -41,47 +85,120 @@ void draw() {
       println(in_string);
     }
   }
-  
-  //update();
-  render();
 }
 
-void update() {
-  if (light_on != light_on_prev) {
-    if (light_on) {
-      port.write(32);
-    } else {
-      port.write(33);
-    }
+void update_joystick() {
+  x_val = x_axis_alt.getValue();
+  y_val = y_axis.getValue();
+
+  x_dir = 0;
+  y_dir = 0;
+  light_on = trigger.pressed();
+
+  if (x_val > 0.1f) {
+    x_dir = 1;
+  } else if (x_val < -0.1f) {
+    x_dir = -1;
   }
 
-  x_dir = right-left;
-  y_dir = up-down;
-
+  if (y_val > 0.1f) {
+    y_dir = 1;
+  } else if (y_val < -0.1f) {
+    y_dir = -1;
+  }
+  
+  if (light_on != light_on_prev) {
+    if (light_on) {
+      serial_send(32);
+    } else {
+      serial_send(33);
+    }
+  }
   if (x_dir != x_dir_prev) {
     switch(x_dir) {
     case 1:
-      port.write(68);
+      serial_send(68);
+      right = 1;
+      left = 0;
       break;
     case -1:
-      port.write(65);
+      serial_send(65);
+      right = 0;
+      left = 1;
       break;
     default:
-      port.write(88);
+      serial_send(88);
+      right = 0;
+      left = 0;
+      break;
+    }
+  }
+  if (y_dir != y_dir_prev) {
+    switch(y_dir) {
+    case 1:
+      serial_send(87);
+      up = 1;
+      down = 0;
+      break;
+    case -1:
+      serial_send(83);
+      up = 0;
+      down = 1;
+      break;
+    default:
+      serial_send(89);
+      up = 0;
+      down = 0;
       break;
     }
   }
 
+
+  x_dir_prev = x_dir;
+  y_dir_prev = y_dir;
+  light_on_prev = light_on;
+}
+
+void serial_send(int b) {
+  if (connected) {
+    port.write(b);
+  }
+}
+
+void update_keyboard() {
+  x_dir = right-left;
+  y_dir = up-down;
+
+  if (light_on != light_on_prev) {
+    if (light_on) {
+      serial_send(32);
+    } else {
+      serial_send(33);
+    }
+  }
+  if (x_dir != x_dir_prev) {
+    switch(x_dir) {
+    case 1:
+      serial_send(68);
+      break;
+    case -1:
+      serial_send(65);
+      break;
+    default:
+      serial_send(88);
+      break;
+    }
+  }
   if (y_dir != y_dir_prev) {
     switch(y_dir) {
     case 1:
-      port.write(87);
+      serial_send(87);
       break;
     case -1:
-      port.write(83);
+      serial_send(83);
       break;
     default:
-      port.write(89);
+      serial_send(89);
       break;
     }
   }
@@ -132,7 +249,6 @@ void render() {
 
 void keyPressed() {
   if (key == CODED) {
-    println("coded");
     switch (keyCode) {
     case UP:
       up = 1;
@@ -150,8 +266,8 @@ void keyPressed() {
   } else if (key == ' ') {
     light_on = true;
   }
-  
-  update();
+
+  update_keyboard();
 }
 
 void keyReleased() {
@@ -170,9 +286,9 @@ void keyReleased() {
       right = 0;
       break;
     }
-  }  else if (key == ' ') {
+  } else if (key == ' ') {
     light_on = false;
   }
-  
-  update();
+
+  update_keyboard();
 }
