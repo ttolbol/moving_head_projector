@@ -1,5 +1,5 @@
 #define pi                          3.1415926535
-#define UPDATE_PERIOD             500
+#define UPDATE_PERIOD              20
 #define ENABLE                    LOW
 #define DISABLE                  HIGH
 #define BAUDRATE               115200
@@ -17,3 +17,4 @@
 #define X_MAX                     270.0f
 #define Y_MIN                    -135.0f
 #define Y_MAX                     135.0f
+#define MIN_SPEED                   0.1f

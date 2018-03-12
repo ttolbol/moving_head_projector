@@ -16,7 +16,7 @@ void init_light() {
   strobe_enabled = false;
   light_state = LIGHT_ON;
   pinMode(LED_PIN, OUTPUT);
-  analogWrite(LED_PIN, 255-light_int);
+  analogWrite(LED_PIN, 255 - light_int);
 }
 
 void update_light() {
@@ -25,7 +25,7 @@ void update_light() {
       long delta = micros() - last_strobe;
       if (delta > strobe_period) {
         light_state = LIGHT_ON;
-        analogWrite(LED_PIN, 255-light_int);
+        analogWrite(LED_PIN, 255 - light_int);
         last_strobe = micros();
       } else if (delta > strobe_pulse_length) {
         light_state = LIGHT_OFF;
@@ -33,7 +33,7 @@ void update_light() {
       }
     } else {
       light_state = LIGHT_ON;
-      analogWrite(LED_PIN, 255-light_int);
+      analogWrite(LED_PIN, 255 - light_int);
     }
   } else {
     if (light_state == LIGHT_OFF) {
@@ -46,35 +46,40 @@ void update_light() {
   }
 }
 
-void enable_light(){
+void enable_light() {
   light_enabled = true;
 }
 
-void disable_light(){
+void disable_light() {
   light_enabled = false;
 }
 
-void toggle_light(){
+void toggle_light() {
   light_enabled = !light_enabled;
 }
 
-void enable_strobe(){
+void enable_strobe() {
   strobe_enabled = true;
 }
 
-void disable_strobe(){
+void disable_strobe() {
   strobe_enabled = false;
 }
 
-void toggle_strobe(){
+void toggle_strobe() {
   strobe_enabled = !strobe_enabled;
 }
 
-void set_intensity(int intensity){
+void set_intensity(int intensity) {
+  if(intensity > 255){
+    intensity = 255;
+  } else if(intensity < 0){
+    intensity = 0;
+  }
   light_int = intensity;
 }
 
-int get_intensity(){
+int get_intensity() {
   return light_int;
 }
 
