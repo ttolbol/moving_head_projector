@@ -1,6 +1,8 @@
 *.DS_Store
 *.pyc
 __pycache__
+venv
+.idea
 idea/
 mh_python_control/.idea/
 mh_python_control/.idea

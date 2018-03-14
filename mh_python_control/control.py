@@ -47,3 +47,5 @@ while True:
 #cameo.die()
 
 pygame.quit()
+
+#cameo.reset_die()
