@@ -1,3 +1,8 @@
 *.DS_Store
 *.pyc
 __pycache__
+idea/
+mh_python_control/.idea/
+mh_python_control/.idea
+misc.xml
+*misc.xml

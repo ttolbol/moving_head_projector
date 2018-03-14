@@ -8,12 +8,19 @@ unsigned long last_check;
 boolean x_motor_enabled;
 boolean y_motor_enabled;
 
-unsigned long x_step_position;
-unsigned long y_step_position;
+long x_step_position;
+long y_step_position;
 unsigned long x_periods_passed;
 unsigned long y_periods_passed;
 unsigned long x_wait_periods;
 unsigned long y_wait_periods;
+
+boolean position_control;
+
+long x_target_pos;
+long y_target_pos;
+float x_target_pos_deg;
+float y_target_pos_deg;
 
 float x_vel;
 float y_vel;
@@ -38,6 +45,13 @@ void init_motors() {
   y_periods_passed = 0;
   x_wait_periods = 0;
   y_wait_periods = 0;
+
+  position_control = false;
+
+  x_target_pos = 0;
+  y_target_pos = 0;
+  x_target_pos_deg = X_MIN;
+  y_target_pos_deg = Y_MIN;
 
   x_vel = 0.0f;
   y_vel = 0.0f;
@@ -94,6 +108,29 @@ unsigned long speed_to_periods_y(float s) {
 
 void update_direction() {
   // switch direction
+  if (position_control) {
+    if (x_target_pos > x_step_position) {
+      x_dir = 1;
+    } else if (x_target_pos < x_step_position) {
+      x_dir = -1;
+    } else {
+      x_dir = 0;
+    }
+    if (y_target_pos > y_step_position) {
+      y_dir = 1;
+    } else if (y_target_pos < y_step_position) {
+      y_dir = -1;
+    } else {
+      y_dir = 0;
+    }
+    if(x_target_pos == x_step_position && x_dir_prev != 0){
+      Serial.println("x_target_reached");
+    }
+    if(y_target_pos == y_step_position && y_dir_prev != 0){
+      Serial.println("y_target_reached");
+    }
+  }
+
   if (x_dir_prev != x_dir) {
     if (x_dir == 1) {
       digitalWrite(X_DIR_PIN, X_DIRECTION);
@@ -156,6 +193,7 @@ void update_y() {
 }
 
 void set_x_vel(float vel) {
+  position_control = false;
   x_wait_periods = speed_to_periods_x(abs(vel));
   if (vel > MIN_SPEED) {
     x_dir = 1;
@@ -167,6 +205,7 @@ void set_x_vel(float vel) {
 }
 
 void set_y_vel(float vel) {
+  position_control = false;
   y_wait_periods = speed_to_periods_y(abs(vel));
   if (vel > MIN_SPEED) {
     y_dir = 1;
@@ -175,6 +214,24 @@ void set_y_vel(float vel) {
   } else {
     y_dir = 0;
   }
+}
+
+void set_x_target_pos(float x_deg) {
+  x_deg = min(x_deg, X_MAX);
+  x_deg = max(x_deg, X_MIN);
+  position_control = true;
+  x_target_pos_deg = x_deg;
+  x_target_pos = get_x_steps(x_deg);
+  x_wait_periods = speed_to_periods_x(abs(MAX_SPEED));
+}
+
+void set_y_target_pos(float y_deg) {
+  y_deg = min(y_deg, Y_MAX);
+  y_deg = max(y_deg, Y_MIN);
+  position_control = true;
+  y_target_pos_deg = y_deg;
+  y_target_pos = get_y_steps(y_deg);
+  y_wait_periods = speed_to_periods_y(abs(MAX_SPEED));
 }
 
 void enable_x_motor() {
@@ -213,6 +270,18 @@ unsigned long get_x_steps() {
 
 unsigned long get_y_steps() {
   return y_step_position;
+}
+
+long get_x_steps(float deg) {
+  deg -= X_MIN;
+  float steps = deg * X_STEPS_PER_DEG;
+  return round(steps);
+}
+
+long get_y_steps(float deg) {
+  deg -= Y_MIN;
+  float steps = deg * Y_STEPS_PER_DEG;
+  return round(steps);
 }
 
 float get_x_degrees(unsigned long steps) {

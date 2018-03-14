@@ -22,6 +22,16 @@ boolean interpret_command(String cmd) {
       set_y_vel(param.toFloat());
       return true;
     }
+  } else if (command.equals("x_pos")) {
+    if (string_is_float(param)) {
+      set_x_target_pos(param.toFloat());
+      return true;
+    }
+  } else if (command.equals("y_pos")) {
+    if (string_is_float(param)) {
+      set_y_target_pos(param.toFloat());
+      return true;
+    }
   } else if (command.equals("led_on")) {
     enable_light();
     return true;
