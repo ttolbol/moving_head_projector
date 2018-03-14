@@ -18,3 +18,4 @@
 #define Y_MIN                    -135.0f
 #define Y_MAX                     135.0f
 #define MIN_SPEED                   0.1f
+#define MAX_SPEED                  90.0f

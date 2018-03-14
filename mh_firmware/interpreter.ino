@@ -22,6 +22,16 @@ boolean interpret_command(String cmd) {
       set_y_vel(param.toFloat());
       return true;
     }
+  } else if (command.equals("x_pos")) {
+    if (string_is_float(param)) {
+      set_x_target_pos(param.toFloat());
+      return true;
+    }
+  } else if (command.equals("y_pos")) {
+    if (string_is_float(param)) {
+      set_y_target_pos(param.toFloat());
+      return true;
+    }
   } else if (command.equals("led_on")) {
     enable_light();
     return true;
@@ -46,18 +56,22 @@ boolean interpret_command(String cmd) {
   } else if (command.equals("motors_off")) {
     disable_motors();
     return true;
-  } else if(command.equals("led_int")){
-    if(string_is_int(param)){
+  } else if (command.equals("led_int")) {
+    if (string_is_int(param)) {
       set_intensity(param.toInt());
       return true;
     }
-  } else if(command.equals("get_pos")){
+  } else if (command.equals("get_pos")) {
     float x_deg = get_x_degrees(get_x_steps());
     float y_deg = get_y_degrees(get_y_steps());
     Serial.print(x_deg);
     Serial.print(", ");
     Serial.println(y_deg);
     return true;
+  } else if (command.equals("strobe_on")) {
+    enable_strobe();
+  } else if (command.equals("strobe_off")) {
+    disable_strobe();
   }
 
   return false;

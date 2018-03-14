@@ -3,3 +3,8 @@
 __pycache__
 venv
 .idea
+idea/
+mh_python_control/.idea/
+mh_python_control/.idea
+misc.xml
+*misc.xml
