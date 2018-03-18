@@ -1,19 +1,30 @@
 #include "pins.h"
 #include "configuration.h"
 
+String instring;
+
 void setup() {
+  init_all();
+}
+
+void init_all(){
+  instring = "";
   init_motors();
   init_light();
-
   Serial.begin(BAUDRATE);
 }
 
 void loop() {
   // read new commands
-  while (Serial.available() > 0) {
-    String instring = Serial.readStringUntil('\n');
-    if (interpret_command(instring)) {
-      Serial.println("ok");
+  if (Serial.available() > 0) {
+    char c = Serial.read();
+    if (c == '\n'){
+      if (interpret_command(instring)) {
+        Serial.println("ok");
+      }
+      instring = "";
+    } else {
+      instring = instring + c;
     }
   }
   update_motors();
