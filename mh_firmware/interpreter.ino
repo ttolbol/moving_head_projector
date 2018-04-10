@@ -62,8 +62,8 @@ boolean interpret_command(String cmd) {
       return true;
     }
   } else if (command.equals("get_pos")) {
-    float x_deg = get_x_degrees(get_x_steps());
-    float y_deg = get_y_degrees(get_y_steps());
+    float x_deg = get_x_degrees(get_x_step_pos());
+    float y_deg = get_y_degrees(get_y_step_pos());
     Serial.print(x_deg);
     Serial.print(", ");
     Serial.println(y_deg);

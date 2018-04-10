@@ -11,6 +11,7 @@ void init_all(){
   instring = "";
   init_motors();
   init_light();
+  init_encoders();
   Serial.begin(BAUDRATE);
 }
 
@@ -29,5 +30,5 @@ void loop() {
   }
   update_motors();
   update_light();
+  update_encoders();
 }
-

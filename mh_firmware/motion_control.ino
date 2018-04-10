@@ -8,8 +8,6 @@ unsigned long last_check;
 boolean x_motor_enabled;
 boolean y_motor_enabled;
 
-long x_step_position;
-long y_step_position;
 unsigned long x_periods_passed;
 unsigned long y_periods_passed;
 unsigned long x_wait_periods;
@@ -38,9 +36,7 @@ void init_motors() {
 
   x_motor_enabled = true;
   y_motor_enabled = true;
-
-  x_step_position = 0;
-  y_step_position = 0;
+  
   x_periods_passed = 0;
   y_periods_passed = 0;
   x_wait_periods = 0;
@@ -84,7 +80,7 @@ unsigned long speed_to_periods_x(float s) {
   //converts deg/s to number of periods in between pulses
   //one period is equal to UPDATE_PERIOD
   if (s > MIN_SPEED) {
-    float steps_per_sec = s * X_STEPS_PER_DEG;
+    float steps_per_sec = s * X_STEPS_PER_DEG * X_STEPS_PER_ENC_PULSE;
     float period = 1000000.f / steps_per_sec;
     float n = period / UPDATE_PERIOD;
     return round(n);
@@ -97,7 +93,7 @@ unsigned long speed_to_periods_y(float s) {
   //converts deg/s to number of periods in between pulses
   //one period is equal to UPDATE_PERIOD
   if (s > MIN_SPEED) {
-    float steps_per_sec = s * Y_STEPS_PER_DEG;
+    float steps_per_sec = s * Y_STEPS_PER_DEG * Y_STEPS_PER_ENC_PULSE;
     float period = 1000000.f / steps_per_sec;
     float n = period / UPDATE_PERIOD;
     return round(n);
@@ -131,6 +127,18 @@ void update_direction() {
     }
   }
 
+  if(x_dir == 1 && x_step_position >= x_steps_max){
+    x_dir = 0;
+  } else if(x_dir == -1 && x_step_position <= 0){
+    x_dir = 0;
+  }
+
+  if(y_dir == 1 && y_step_position >= y_steps_max){
+    y_dir = 0;
+  } else if(y_dir == -1 && y_step_position <= 0){
+    y_dir = 0;
+  }
+
   if (x_dir_prev != x_dir) {
     if (x_dir == 1) {
       digitalWrite(X_DIR_PIN, X_DIRECTION);
@@ -161,11 +169,6 @@ void update_x() {
         x_periods_passed = 0;
         x_state = HIGH;
         digitalWrite(X_STEP_PIN, x_state);
-        if (x_dir == 1) {
-          x_step_position++;
-        } else {
-          x_step_position--;
-        }
       }
     }
   }
@@ -262,36 +265,4 @@ void enable_motors() {
 void disable_motors() {
   disable_x_motor();
   disable_y_motor();
-}
-
-unsigned long get_x_steps() {
-  return x_step_position;
-}
-
-unsigned long get_y_steps() {
-  return y_step_position;
-}
-
-long get_x_steps(float deg) {
-  deg -= X_MIN;
-  float steps = deg * X_STEPS_PER_DEG;
-  return round(steps);
-}
-
-long get_y_steps(float deg) {
-  deg -= Y_MIN;
-  float steps = deg * Y_STEPS_PER_DEG;
-  return round(steps);
-}
-
-float get_x_degrees(unsigned long steps) {
-  float pos = X_MIN;
-  pos += steps / X_STEPS_PER_DEG;
-  return pos;
-}
-
-float get_y_degrees(unsigned long steps) {
-  float pos = Y_MIN;
-  pos += steps / Y_STEPS_PER_DEG;
-  return pos;
 }

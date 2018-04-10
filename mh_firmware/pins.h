@@ -24,4 +24,8 @@
 #define E1_ENABLE_PIN      30
 #define E1_CS_PIN          44
 
-#define LED_PIN           11
+#define LED_PIN            11
+
+#define ENC_PAN_A          57
+#define ENC_PAN_B          58
+
