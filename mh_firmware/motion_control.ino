@@ -1,3 +1,8 @@
+long x_step_position;
+long y_step_position;
+long x_steps_max;
+long y_steps_max;
+
 int x_dir;
 int y_dir;
 int x_dir_prev;
@@ -7,6 +12,9 @@ int y_state;
 unsigned long last_check;
 boolean x_motor_enabled;
 boolean y_motor_enabled;
+
+boolean x_homing;
+boolean y_homing;
 
 unsigned long x_periods_passed;
 unsigned long y_periods_passed;
@@ -24,6 +32,12 @@ float x_vel;
 float y_vel;
 
 void init_motors() {
+  x_step_position = 0;
+  y_step_position = 0;
+
+  x_steps_max = get_x_steps(X_MAX);
+  y_steps_max = get_y_steps(Y_MAX);
+  
   x_dir = 0;
   y_dir = 0;
   x_dir_prev = x_dir;
@@ -34,8 +48,11 @@ void init_motors() {
 
   last_check = 0;
 
-  x_motor_enabled = true;
-  y_motor_enabled = true;
+  x_motor_enabled = false;
+  y_motor_enabled = false;
+
+  x_homing = false;
+  y_homing = false;
   
   x_periods_passed = 0;
   y_periods_passed = 0;
@@ -62,8 +79,8 @@ void init_motors() {
 
   digitalWrite(X_DIR_PIN, X_DIRECTION);
   digitalWrite(Y_DIR_PIN, Y_DIRECTION);
-  digitalWrite(X_ENABLE_PIN, ENABLE);
-  digitalWrite(Y_ENABLE_PIN, ENABLE);
+  digitalWrite(X_ENABLE_PIN, DISABLE);
+  digitalWrite(Y_ENABLE_PIN, DISABLE);
 }
 
 void update_motors() {
@@ -76,11 +93,19 @@ void update_motors() {
   }
 }
 
+unsigned long get_x_step_pos() {
+  return x_step_position;
+}
+
+unsigned long get_y_step_pos() {
+  return y_step_position;
+}
+
 unsigned long speed_to_periods_x(float s) {
   //converts deg/s to number of periods in between pulses
   //one period is equal to UPDATE_PERIOD
   if (s > MIN_SPEED) {
-    float steps_per_sec = s * X_STEPS_PER_DEG * X_STEPS_PER_ENC_PULSE;
+    float steps_per_sec = s * X_STEPS_PER_DEG;
     float period = 1000000.f / steps_per_sec;
     float n = period / UPDATE_PERIOD;
     return round(n);
@@ -93,7 +118,7 @@ unsigned long speed_to_periods_y(float s) {
   //converts deg/s to number of periods in between pulses
   //one period is equal to UPDATE_PERIOD
   if (s > MIN_SPEED) {
-    float steps_per_sec = s * Y_STEPS_PER_DEG * Y_STEPS_PER_ENC_PULSE;
+    float steps_per_sec = s * Y_STEPS_PER_DEG;
     float period = 1000000.f / steps_per_sec;
     float n = period / UPDATE_PERIOD;
     return round(n);
@@ -120,9 +145,17 @@ void update_direction() {
       y_dir = 0;
     }
     if(x_target_pos == x_step_position && x_dir_prev != 0){
+      if (x_homing){
+        x_homing = false;
+        x_encoder_position = 0;
+      }
       Serial.println("x_target_reached");
     }
     if(y_target_pos == y_step_position && y_dir_prev != 0){
+      if (y_homing){
+        y_homing = false;
+        y_encoder_position = 0;
+      }
       Serial.println("y_target_reached");
     }
   }
@@ -158,7 +191,35 @@ void update_direction() {
   y_dir_prev = y_dir;
 }
 
+void home_x(){
+  enable_x_motor();
+  x_homing = true;
+  position_control = true;
+  x_encoder_position = 0;
+  x_step_position = 64;
+  x_target_pos_deg = X_MIN;
+  x_target_pos = get_x_steps(x_target_pos_deg);
+  x_wait_periods = speed_to_periods_x(abs(MAX_SPEED));
+}
+
+void home_y(){
+  enable_y_motor();
+  y_homing = true;
+  position_control = true;
+  y_encoder_position = 0;
+  y_step_position = y_steps_max;
+  y_target_pos_deg = Y_MIN;
+  y_target_pos = get_y_steps(y_target_pos_deg);
+  y_wait_periods = speed_to_periods_y(abs(MAX_SPEED));
+}
+
 void update_x() {
+  // encoder based homing
+  if (x_homing && x_encoder_position < 0){
+    x_encoder_position = 0;
+    x_step_position = 64;
+  }
+  
   if (x_dir != 0) {
     if (x_state == HIGH) {
       x_state = LOW;
@@ -169,6 +230,11 @@ void update_x() {
         x_periods_passed = 0;
         x_state = HIGH;
         digitalWrite(X_STEP_PIN, x_state);
+        if (x_dir == 1) {
+          x_step_position++;
+        } else {
+          x_step_position--;
+        }
       }
     }
   }
@@ -196,6 +262,7 @@ void update_y() {
 }
 
 void set_x_vel(float vel) {
+  enable_x_motor();
   position_control = false;
   x_wait_periods = speed_to_periods_x(abs(vel));
   if (vel > MIN_SPEED) {
@@ -208,6 +275,7 @@ void set_x_vel(float vel) {
 }
 
 void set_y_vel(float vel) {
+  enable_y_motor();
   position_control = false;
   y_wait_periods = speed_to_periods_y(abs(vel));
   if (vel > MIN_SPEED) {
@@ -220,6 +288,7 @@ void set_y_vel(float vel) {
 }
 
 void set_x_target_pos(float x_deg) {
+  enable_x_motor();
   x_deg = min(x_deg, X_MAX);
   x_deg = max(x_deg, X_MIN);
   position_control = true;
@@ -229,6 +298,7 @@ void set_x_target_pos(float x_deg) {
 }
 
 void set_y_target_pos(float y_deg) {
+  enable_y_motor();
   y_deg = min(y_deg, Y_MAX);
   y_deg = max(y_deg, Y_MIN);
   position_control = true;

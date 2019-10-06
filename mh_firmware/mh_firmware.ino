@@ -19,7 +19,7 @@ void loop() {
   // read new commands
   if (Serial.available() > 0) {
     char c = Serial.read();
-    if (c == '\n'){
+    if (c == '\n' || c == ','){
       if (interpret_command(instring)) {
         Serial.println("ok");
       }

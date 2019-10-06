@@ -1,4 +1,5 @@
 boolean interpret_command(String cmd) {
+  cmd.trim();
   int spaces = count_char(cmd, '_'); //counts number of spaces in command to check if command includes parameters
   String command;
   String param;
@@ -32,6 +33,16 @@ boolean interpret_command(String cmd) {
       set_y_target_pos(param.toFloat());
       return true;
     }
+  } else if (command.equals("home")) {
+    home_x();
+    home_y();
+    return true; 
+  } else if (command.equals("x_home")) {
+    home_x();
+    return true; 
+  } else if (command.equals("y_home")) {
+    home_y();
+    return true;
   } else if (command.equals("led_on")) {
     enable_light();
     return true;
