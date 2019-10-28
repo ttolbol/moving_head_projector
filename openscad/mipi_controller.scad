@@ -55,12 +55,12 @@ module pcb_large(){
             
         }
         translate([(55.3+hole_dia_large)/2, 2.1-(64-hole_dia_large)/2, 0])
-            cylinder(d=hole_dia_large, h=pcb_thickness*3, $fn=16, center=true);
+            #cylinder(d=hole_dia_large, h=pcb_thickness*3, $fn=16, center=true);
         translate([-(55.3+hole_dia_large)/2, 2.1-(64-hole_dia_large)/2, 0])
             cylinder(d=hole_dia_large, h=pcb_thickness*3, $fn=16, center=true);
         
         translate([(55.3+hole_dia_large)/2, hole_dia_large+46.4+2.1-(64-hole_dia_large)/2, 0])
-            cylinder(d=hole_dia_large, h=pcb_thickness*3, $fn=16, center=true);
+            #cylinder(d=hole_dia_large, h=pcb_thickness*3, $fn=16, center=true);
         translate([-(55.3+hole_dia_large)/2, hole_dia_large+46.4+2.1-(64-hole_dia_large)/2, 0])
             cylinder(d=hole_dia_large, h=pcb_thickness*3, $fn=16, center=true);
     }
