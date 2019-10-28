@@ -196,10 +196,10 @@ void home_x(){
   x_homing = true;
   position_control = true;
   x_encoder_position = 0;
-  x_step_position = 64;
+  x_step_position = int(X_STEPS_PER_ENC_PULSE)*2;
   x_target_pos_deg = X_MIN;
   x_target_pos = get_x_steps(x_target_pos_deg);
-  x_wait_periods = speed_to_periods_x(abs(MAX_SPEED));
+  x_wait_periods = speed_to_periods_x(abs(MAX_SPEED * 0.5));
 }
 
 void home_y(){
@@ -207,17 +207,17 @@ void home_y(){
   y_homing = true;
   position_control = true;
   y_encoder_position = 0;
-  y_step_position = y_steps_max;
+  y_step_position = int(Y_STEPS_PER_ENC_PULSE)*2;
   y_target_pos_deg = Y_MIN;
   y_target_pos = get_y_steps(y_target_pos_deg);
-  y_wait_periods = speed_to_periods_y(abs(MAX_SPEED));
+  y_wait_periods = speed_to_periods_y(abs(MAX_SPEED * 0.5));
 }
 
 void update_x() {
   // encoder based homing
   if (x_homing && x_encoder_position < 0){
     x_encoder_position = 0;
-    x_step_position = 64;
+    x_step_position = int(X_STEPS_PER_ENC_PULSE)*2;
   }
   
   if (x_dir != 0) {
@@ -241,6 +241,12 @@ void update_x() {
 }
 
 void update_y() {
+  // encoder based homing
+  if (y_homing && y_encoder_position < 0){
+    y_encoder_position = 0;
+    y_step_position = int(Y_STEPS_PER_ENC_PULSE)*2;
+  }
+  
   if (y_dir != 0) {
     if (y_state == HIGH) {
       y_state = LOW;
@@ -336,3 +342,14 @@ void disable_motors() {
   disable_x_motor();
   disable_y_motor();
 }
+
+boolean homing(){
+  if (x_homing){
+    return true;
+  }
+  if (y_homing){
+    return true;
+  }
+  return false;
+}
+

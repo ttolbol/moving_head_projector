@@ -79,6 +79,13 @@ boolean interpret_command(String cmd) {
     Serial.print(", ");
     Serial.println(y_deg);
     return true;
+  } else if (command.equals("get_enc_pos")) {
+    long x_enc = get_x_encoder_pos();
+    long y_enc = get_y_encoder_pos();
+    Serial.print(x_enc);
+    Serial.print(", ");
+    Serial.println(y_enc);
+    return true;
   } else if (command.equals("strobe_on")) {
     enable_strobe();
   } else if (command.equals("strobe_off")) {

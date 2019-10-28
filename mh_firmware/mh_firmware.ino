@@ -17,7 +17,7 @@ void init_all(){
 
 void loop() {
   // read new commands
-  if (Serial.available() > 0) {
+  if (Serial.available() > 0 && !homing()) {
     char c = Serial.read();
     if (c == '\n' || c == ','){
       if (interpret_command(instring)) {
