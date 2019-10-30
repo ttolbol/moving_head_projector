@@ -10,6 +10,7 @@ int y_dir_prev;
 int x_state;
 int y_state;
 unsigned long last_check;
+unsigned long last_repos_check;
 boolean x_motor_enabled;
 boolean y_motor_enabled;
 
@@ -50,6 +51,7 @@ void init_motors() {
   y_state = LOW;
 
   last_check = 0;
+  last_repos_check = 0;
 
   x_motor_enabled = false;
   y_motor_enabled = false;
@@ -96,6 +98,20 @@ void update_motors() {
     update_x();
     update_y();
     last_check = micros();
+  }
+
+  delta = micros() - last_repos_check;
+  if (delta > REPOSITION_PERIOD){
+    long x_step_real = get_x_encoder_pos() * X_STEPS_PER_ENC_PULSE; // actual position
+    if (abs(x_step_position - x_step_real) > MAX_STEP_DIFFERENCE){  // compare with expected to detect missed steps
+      x_step_position = x_step_real;
+    }
+
+    long y_step_real = get_y_encoder_pos() * Y_STEPS_PER_ENC_PULSE; // actual position
+    if (abs(y_step_position - y_step_real) > MAX_STEP_DIFFERENCE){  // compare with expected to detect missed steps
+      y_step_position = y_step_real;
+    }
+    last_repos_check = micros();
   }
 }
 

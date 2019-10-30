@@ -15,6 +15,8 @@
 #define X_STEPS_PER_ENC_PULSE      32
 #define Y_STEPS_PER_DEG            31.2f
 #define Y_STEPS_PER_ENC_PULSE      32
+#define MAX_STEP_DIFFERENCE       128
+#define REPOSITION_PERIOD       50000
 #define X_MIN                     -90.0f
 #define X_MAX                      90.0f
 #define Y_MIN                    -135.0f
