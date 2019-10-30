@@ -21,6 +21,9 @@ unsigned long y_periods_passed;
 unsigned long x_wait_periods;
 unsigned long y_wait_periods;
 
+float x_speed;
+float y_speed;
+
 boolean position_control;
 
 long x_target_pos;
@@ -56,8 +59,11 @@ void init_motors() {
   
   x_periods_passed = 0;
   y_periods_passed = 0;
-  x_wait_periods = 0;
-  y_wait_periods = 0;
+  x_wait_periods = speed_to_periods_x(MAX_SPEED);
+  y_wait_periods = speed_to_periods_y(MAX_SPEED);
+
+  x_speed = MAX_SPEED;
+  y_speed = MAX_SPEED;
 
   position_control = false;
 
@@ -299,8 +305,12 @@ void set_x_target_pos(float x_deg) {
   x_deg = max(x_deg, X_MIN);
   position_control = true;
   x_target_pos_deg = x_deg;
-  x_target_pos = get_x_steps(x_deg);
-  x_wait_periods = speed_to_periods_x(abs(MAX_SPEED));
+  long new_x = get_x_steps(x_deg);
+  if (new_x == x_target_pos){
+    Serial.println("x_target_reached");
+  } else {
+    x_target_pos = new_x;
+  }
 }
 
 void set_y_target_pos(float y_deg) {
@@ -309,8 +319,19 @@ void set_y_target_pos(float y_deg) {
   y_deg = max(y_deg, Y_MIN);
   position_control = true;
   y_target_pos_deg = y_deg;
-  y_target_pos = get_y_steps(y_deg);
-  y_wait_periods = speed_to_periods_y(abs(MAX_SPEED));
+  long new_y = get_y_steps(y_deg);
+  if (new_y == y_target_pos){
+    Serial.println("y_target_reached");
+  } else {
+    y_target_pos = new_y;
+  }
+}
+
+void set_movement_speed(float mspeed){
+  x_speed = min(abs(mspeed), MAX_SPEED);
+  y_speed = x_speed;
+  x_wait_periods = speed_to_periods_x(x_speed);
+  y_wait_periods = speed_to_periods_y(y_speed);
 }
 
 void enable_x_motor() {
