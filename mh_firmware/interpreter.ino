@@ -93,8 +93,16 @@ boolean interpret_command(String cmd) {
     return true;
   } else if (command.equals("strobe_on")) {
     enable_strobe();
+    return true;
   } else if (command.equals("strobe_off")) {
     disable_strobe();
+    return true;
+  } else if (command.equals("tracking_on")) {
+    tracking_on();
+    return true;
+  } else if (command.equals("tracking_off")) {
+    tracking_off();
+    return true;
   }
 
   return false;

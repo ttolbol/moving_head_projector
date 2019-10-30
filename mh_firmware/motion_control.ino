@@ -335,11 +335,13 @@ void set_movement_speed(float mspeed){
 }
 
 void enable_x_motor() {
+  x_step_position = get_x_encoder_pos() * X_STEPS_PER_ENC_PULSE;
   x_motor_enabled = true;
   digitalWrite(X_ENABLE_PIN, ENABLE);
 }
 
 void enable_y_motor() {
+  y_step_position = get_y_encoder_pos() * Y_STEPS_PER_ENC_PULSE;
   y_motor_enabled = true;
   digitalWrite(Y_ENABLE_PIN, ENABLE);
 }

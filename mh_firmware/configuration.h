@@ -12,11 +12,11 @@
 #define LIGHT_OFF                HIGH
 
 #define X_STEPS_PER_DEG            42.637f
-#define X_STEPS_PER_ENC_PULSE      32.0f
+#define X_STEPS_PER_ENC_PULSE      32
 #define Y_STEPS_PER_DEG            31.2f
-#define Y_STEPS_PER_ENC_PULSE      32.0f
-#define X_MIN                    -90.0f
-#define X_MAX                     90.0f
+#define Y_STEPS_PER_ENC_PULSE      32
+#define X_MIN                     -90.0f
+#define X_MAX                      90.0f
 #define Y_MIN                    -135.0f
 #define Y_MAX                     135.0f
 #define MIN_SPEED                   0.1f
