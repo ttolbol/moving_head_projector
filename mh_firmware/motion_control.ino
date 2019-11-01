@@ -171,14 +171,18 @@ void update_direction() {
         x_homing = false;
         x_encoder_position = 0;
       }
-      Serial.println("x_target_reached");
+      if (x_motor_enabled){
+        Serial.println("x_target_reached");
+      }
     }
     if(y_target_pos == y_step_position && y_dir_prev != 0){
       if (y_homing){
         y_homing = false;
         y_encoder_position = 0;
       }
-      Serial.println("y_target_reached");
+      if (y_motor_enabled){
+        Serial.println("y_target_reached");
+      }
     }
   }
 

@@ -108,9 +108,9 @@ void update_encoders(){
   if (tracking && moved){
     float x_deg = get_x_degrees(x_encoder_position * X_STEPS_PER_ENC_PULSE);
     float y_deg = get_y_degrees(y_encoder_position * Y_STEPS_PER_ENC_PULSE);
-    Serial.print(x_deg);
+    Serial.print(x_deg, 8);
     Serial.print(", ");
-    Serial.println(y_deg);
+    Serial.println(y_deg, 8);
   }
   
   enc_pan_state_a = pan_a;
