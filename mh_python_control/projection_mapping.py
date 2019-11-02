@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import cv2
 
 
 class Projector:
@@ -71,3 +72,43 @@ class Projector:
         # TODO
         pass
 
+
+class Texture:
+    def __init__(self, img_path, x, y, z, scale=1.0):
+        self.img = cv2.imread(img_path)
+        self.x = x
+        self.y = y
+        self.z = z
+        self.h, self.w, _ = np.shape(self.img)
+        self.scale = scale  # mm/px
+
+    def get_camera_coords(self, projector):
+        # coordinates of upper left corner
+        x = self.x - self.w * 0.5 * self.scale
+        y = self.y
+        z = self.z + self.h * 0.5 * self.scale
+        cx0, cy0 = projector.get_camera_coords(x, y, z)
+
+        # upper right corner
+        x += self.w * self.scale
+        cx1, cy1 = projector.get_camera_coords(x, y, z)
+
+        # lower left corner
+        x -= self.w * self.scale
+        z -= self.h * self.scale
+        cx2, cy2 = projector.get_camera_coords(x, y, z)
+
+        # lower right corner
+        x += self.w * self.scale
+        cx3, cy3 = projector.get_camera_coords(x, y, z)
+
+        return cx0, cy0, cx1, cy1, cx2, cy2, cx3, cy3
+
+    def render(self, projector, img):
+        dx0, dy0, dx1, dy1, dx2, dy2, dx3, dy3 = self.get_camera_coords(projector)
+        src = np.float32([[0, 0], [self.w, 0], [0, self.h], [self.w, self.h]])
+        dst = np.float32([[dx0, dy0], [dx1, dy1], [dx2, dy2], [dx3, dy3]])
+        mat = cv2.getPerspectiveTransform(src, dst)
+        h, w, _ = np.shape(img)
+        img = cv2.warpPerspective(self.img, mat, (w, h), img, borderMode=cv2.BORDER_TRANSPARENT)
+        return img
